@@ -13,15 +13,25 @@ final class PushNotificationsManager: PushNotesManager {
     ///
     let configuration: PushNotificationsConfiguration
 
-    /// Mutable reference to `foregroundNotifications`.
-    private let foregroundNotificationsSubject = PublishSubject<ForegroundNotification>()
-
     /// An observable that emits values when the Remote Notifications are received while the app is
     /// in the foreground.
     ///
     var foregroundNotifications: Observable<ForegroundNotification> {
         foregroundNotificationsSubject
     }
+
+    /// Mutable reference to `foregroundNotifications`.
+    private let foregroundNotificationsSubject = PublishSubject<ForegroundNotification>()
+
+    /// An observable that emits values when the app is activated due to a Remote Notification.
+    /// The Remote Notification is emitted.
+    ///
+    var inactiveNotifications: Observable<ForegroundNotification> {
+        inactiveNotificationsSubject
+    }
+
+    /// Mutable reference to `backgroundNotifications`
+    private let inactiveNotificationsSubject = PublishSubject<ForegroundNotification>()
 
     /// Returns the current Application's State
     ///
@@ -282,12 +292,18 @@ private extension PushNotificationsManager {
     /// - Returns: True when handled. False otherwise
     ///
     func handleInactiveNotification(_ userInfo: [AnyHashable: Any], completionHandler: (UIBackgroundFetchResult) -> Void) -> Bool {
-        guard applicationState == .inactive, let notificationID = userInfo.integer(forKey: APNSKey.identifier) else {
+        guard applicationState == .inactive else {
             return false
         }
 
         DDLogVerbose("📱 Handling Notification in Inactive State")
-        configuration.application.presentNotificationDetails(for: Int64(notificationID))
+
+        if let notification = ForegroundNotification.from(userInfo: userInfo) {
+            configuration.application.presentNotificationDetails(for: Int64(notification.noteID))
+
+            inactiveNotificationsSubject.send(notification)
+        }
+
         completionHandler(.newData)
 
         return true
