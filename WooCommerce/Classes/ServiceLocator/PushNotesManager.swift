@@ -8,6 +8,11 @@ protocol PushNotesManager {
     ///
     var foregroundNotifications: Observable<ForegroundNotification> { get }
 
+    /// An observable that emits values when the app is activated due to a Remote Notification.
+    /// The Remote Notification is emitted.
+    ///
+    var inactiveNotifications: Observable<ForegroundNotification> { get }
+
     /// Resets the Badge Count.
     ///
     func resetBadgeCount()
