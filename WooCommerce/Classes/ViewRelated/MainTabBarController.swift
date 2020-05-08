@@ -102,10 +102,7 @@ final class MainTabBarController: UITabBarController {
         return navController
     }()
 
-    private lazy var reviewsTabViewController: UIViewController = {
-        let rootViewController = ReviewsViewController()
-        return WooNavigationController(rootViewController: rootViewController)
-    }()
+    private lazy var reviewsCoordinator: Coordinator = ReviewsCoordinator()
 
     // MARK: - Overridden Methods
 
@@ -124,7 +121,7 @@ final class MainTabBarController: UITabBarController {
             controllers.insert(productsTabViewController, at: productsTabIndex)
 
             let reviewsTabIndex = WooTab.reviews.visibleIndex()
-            controllers.insert(reviewsTabViewController, at: reviewsTabIndex)
+            controllers.insert(reviewsCoordinator.navigationController, at: reviewsTabIndex)
 
             return controllers
         }()
