@@ -125,6 +125,8 @@ final class MainTabBarController: UITabBarController {
 
             return controllers
         }()
+
+        reviewsCoordinator.start()
     }
 
     override func viewWillAppear(_ animated: Bool) {
